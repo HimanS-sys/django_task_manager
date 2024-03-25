@@ -9,6 +9,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, FormView
 from django.views.generic.edit import CreateView, DeleteView, UpdateView
 from tasks import services
+from tasks.forms import TaskForm
 from tasks.models import Task
 from tasks.mixins import SprintTaskMixin
 from tasks.services import (
@@ -51,8 +52,9 @@ class TaskCreateView(LoginRequiredMixin, CreateView):
 class TaskUpdateView(PermissionRequiredMixin, SprintTaskMixin, UpdateView):
     permission_required = ('tasks.change_task')
     model = Task
-    template_name = "task_form.html"
-    fields = ("name", "description", "start_date", "end_date")
+    template_name = "tasks/task_form.html"
+    # fields = ("name", "description", "start_date", "end_date")
+    form_class = TaskForm
     def get_success_url(self):
         return reverse_lazy("tasks:task-detail", kwargs = {
             "pk" : self.object.id
@@ -68,11 +70,11 @@ class TaskUpdateView(PermissionRequiredMixin, SprintTaskMixin, UpdateView):
         is_creator_or_owner = task.creator == self.request.user or \
         task.owner == self.request.user
         # return true if both the conditions are met
-        return has_general_permission and is_creator_or_owner
+        return has_general_permission or is_creator_or_owner
 
 class TaskDeleteView(DeleteView):
     model = Task
-    template_name = "task_confirm_delete.html"
+    template_name = "tasks/task_confirm_delete.html"
     success_url = reverse_lazy("tasks:task-list")
 
 class ContactFormView(FormView):

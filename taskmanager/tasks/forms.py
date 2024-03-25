@@ -1,7 +1,7 @@
 import uuid
 from django import forms
 from django.core.cache import cache
-from .models import Epic, Task, SubscribedEmail, FormSubmission
+from .models import Epic, Task, Email, FormSubmission
 from .fields import EmailsListField
 from django.db import IntegrityError, transaction
 
@@ -50,7 +50,7 @@ class TaskForm(forms.ModelForm):
             task.watchers.all().delete()
             # Add the new emails to the email model
         for email_str in self.cleaned_data["watchers"]:
-            SubscribedEmail.objects.create(
+            Email.objects.create(
                 email = email_str,
                 task = task
             )
